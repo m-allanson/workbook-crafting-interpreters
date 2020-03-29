@@ -1,4 +1,4 @@
-package java.com.tekniskt.lox;
+package com.tekniskt.lox;
 
 class Token {
     final TokenType type;
@@ -14,6 +14,6 @@ class Token {
     }
 
     public String toString() {
-        return type + "" + lexeme + " " + literal;
+        return type + " " + lexeme + " " + literal;
     }
 }

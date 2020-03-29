@@ -1,4 +1,4 @@
-package java.com.tekniskt.lox;
+package com.tekniskt.lox;
 
 enum TokenType {
     // Single-character tokens

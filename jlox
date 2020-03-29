@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-java -cp build/java com.tekniskt.lox.Lox $@
+java -cp build com.tekniskt.lox.Lox $@

@@ -1,4 +1,4 @@
-package java.com.tekniskt.lox;
+package com.tekniskt.lox;
 
 import java.io.BufferedReader;
 import java.io.IOException;
