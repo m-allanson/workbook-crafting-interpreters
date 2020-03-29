@@ -1,0 +1,40 @@
+// var a = 1;
+// print a;
+
+// while (a < 100) {
+//     a = sum(a, 1);
+//     print a;
+// }
+
+
+fun sumAll(number, total) {
+    if (total == nil) {
+        total = 0;
+    }
+
+    if (number == 0) {
+      return total;
+    }
+
+    total = total + number;
+    number = number - 1;
+    print total;
+    return sumAll(number, total);
+}
+
+fun sumTo10() {
+    return sumAll(10, nil);
+}
+
+
+
+fun sum(a, b) {
+    var c = a + b;
+    return c;
+}
+
+// var total = sumAll(10, nil);
+// print "";
+// print total;
+var mySum = sumTo10;
+print mySum();

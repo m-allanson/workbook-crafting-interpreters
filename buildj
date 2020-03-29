@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+make -f java.make DIR=java PACKAGE=lox
