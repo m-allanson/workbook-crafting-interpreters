@@ -13,6 +13,7 @@ class Scanner {
     private int start = 0;
     private int current = 0;
     private int line = 1;
+    static boolean scanningComment = false;
 
     private static final Map<String, TokenType> keywords;
 
@@ -71,12 +72,27 @@ class Scanner {
             case '>': addToken(match('=') ? GREATER_EQUAL : GREATER); break;
 
             case '/':
-                if (match('/')) {
+                if (match('*')) {
+                    // a block comment goes until a closing '*/'
+                    // it can cross multiple lines
+
+                    scanningComment = true;
+                    while (scanningComment && !isAtEnd()) {
+                        advance();
+                        if (match('*') && peek() == '/') {
+                            advance();
+                            scanningComment = false;
+                        }
+                    }
+                } else if (match('/') && !scanningComment) {
                     // A comment goes until the end of the line
-                    while (peek() != '\n' && !isAtEnd()) advance();
+                    while (peek() != '\n' && !isAtEnd()) {
+                        advance();
+                    }
                 } else {
                     addToken(SLASH);
                 }
+
                 break;
 
             case ' ':

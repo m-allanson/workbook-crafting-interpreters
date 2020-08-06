@@ -1,0 +1,12 @@
+/* ignore
+ all of
+ this
+
+// woohoo, this too
+    /* Nesting block comments
+    fun log(a) {
+        return a
+    }
+    */
+now close the comment
+*/print log(1);
