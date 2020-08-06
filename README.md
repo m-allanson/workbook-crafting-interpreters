@@ -14,3 +14,7 @@ My notes and answers to the challenges for each chapter are in the `notes` direc
 - `brew cask install intellij-idea-ce`
 - `./buildj` to build jlox 
 - `./jlox <path to file>`
+
+*Tips*
+
+You can configure IntelliJ to automatically rebuild jlox when any of the source files change. Ensure the file watcher plugin is installed and follow [these steps](https://www.jetbrains.com/help/idea/using-file-watchers.html#ws_creating_file_watchers).
