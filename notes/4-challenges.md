@@ -6,7 +6,13 @@ I went down a bit of a rabbit hole here. It's a big topic and I only touched the
 
 For further reading see the [Chomsky hierarchy](https://en.wikipedia.org/wiki/Chomsky_hierarchy). A regular grammar is used to generate a regular language. This is a type 3 grammar in the Chomsky hierarchy. A regular language can be describe with a finite state machine. A finite state machine can recognise only one state at a time.
 
-I assume the grammars for Python and Haskell are complex enough that they can not be described with a Type 3 (regular) grammar. 
+I assume the grammars for Python and Haskell are complex enough that they can not be described with a Type 3 (regular) grammar.
+
+Aha. Here is a clear explanation from [the computer science Stack Exchange](https://cs.stackexchange.com/questions/77989/is-python-a-context-free-language):
+
+> Context-free grammars cannot express the rules of INDENT/DEDENT and so Python (which we use today in practice with INDENTs/DEDENTs)is not pure CF. Parsers (or lexical analyzers or lexers) for these languages use additional techniques to handle those structures. For example keep track of indentation levels, or tokenizer (scanners) may count number whitespaces and store that info in a table for later use. 
+
+Python's treatment of whitespace means it can only be described by a more complex grammar. If Python cannot be described with a context-free grammar, it also cannot be described with a regular grammar. Refer back to the Chomsky hierarchy for more details on that.
 
 ---
 
@@ -77,6 +83,10 @@ This could be from the _token pasting_ operator. This operator allows two tokens
 A [description of this operator](https://complete-concrete-concise.com/programming/c/preprocessor-the-token-pasting-operator/):
 
 >The token pasting (##) operator simply eliminates any white space around it and concatenates (joins together) the non-whitespace characters together. It can only be used in a macro definition. It is used to create new tokens.
+
+Aha. I also found [this SO answer](https://softwareengineering.stackexchange.com/questions/309389/what-is-the-origin-of-the-c-preprocessor). Which says the C preprocessor has:
+
+> syntactically significant whitespace (end of line terminates a statement, gap after the macro determines the start of the replacement list)
 
 ---
 
