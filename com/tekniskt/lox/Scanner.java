@@ -13,7 +13,7 @@ class Scanner {
     private int start = 0;
     private int current = 0;
     private int line = 1;
-    static boolean scanningComment = false;
+    static int commentDepth = 0;
 
     private static final Map<String, TokenType> keywords;
 
@@ -75,16 +75,21 @@ class Scanner {
                 if (match('*')) {
                     // a block comment goes until a closing '*/'
                     // it can cross multiple lines
+                    // comments can be nested: /* this /* will // blargh */ scan ok */
 
-                    scanningComment = true;
-                    while (scanningComment && !isAtEnd()) {
+                    commentDepth += 1;
+                    while (commentDepth > 0 && !isAtEnd()) {
                         advance();
+                        if (match('/') && peek() == '*') {
+                            commentDepth += 1;
+                        }
                         if (match('*') && peek() == '/') {
+                            System.out.println("comment depth" + commentDepth);
                             advance();
-                            scanningComment = false;
+                            commentDepth -= 1;
                         }
                     }
-                } else if (match('/') && !scanningComment) {
+                } else if (match('/') && commentDepth == 0) {
                     // A comment goes until the end of the line
                     while (peek() != '\n' && !isAtEnd()) {
                         advance();
