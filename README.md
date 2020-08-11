@@ -12,7 +12,7 @@ My notes and answers to the challenges for each chapter are in the `notes` direc
 
 - `brew cask install java`
 - `brew cask install intellij-idea-ce`
-- `./buildj` to build jlox 
+- `make jlox` to build jlox 
 - `./jlox <path to file>`
 
 *Tips*
