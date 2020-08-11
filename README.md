@@ -17,4 +17,16 @@ My notes and answers to the challenges for each chapter are in the `notes` direc
 
 *Tips*
 
-You can configure IntelliJ to automatically rebuild jlox when any of the source files change. Ensure the file watcher plugin is installed and follow [these steps](https://www.jetbrains.com/help/idea/using-file-watchers.html#ws_creating_file_watchers).
+Configure IntelliJ to automatically rebuild jlox when any of the source files change. Ensure the file watcher plugin is installed and follow [these steps](https://www.jetbrains.com/help/idea/using-file-watchers.html#ws_creating_file_watchers).
+
+---
+
+Run a specific Java file: 
+
+`java -cp <buildDir> <classPath>`
+
+e.g. to run `com.tekniskt.lox.AstPrinter.java`,  invoke: 
+
+`java -cp build com.tekniskt.lox.AstPrinter` 
+
+Ensure you have built jlox (`make jlox`) first.
