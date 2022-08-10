@@ -1,1 +1,1 @@
-export type Literal = Record<string, any> | null;
+export type Literal = string | number | undefined;

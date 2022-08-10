@@ -19,7 +19,7 @@ class Scanner {
       this.start = this.current;
       this.scanToken();
     }
-    this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
+    this.tokens.push(new Token(TokenType.EOF, "", undefined, this.line));
     return this.tokens;
   }
 
@@ -88,11 +88,54 @@ class Scanner {
       case "\n":
         this.line++;
         break;
+      case '"':
+        this.string();
+        break;
 
       default:
-        Lox.error(this.line, `Unexpected character "${c}"\n`);
+        if (this.isDigit(c)) {
+          this.number();
+        } else {
+          Lox.error(this.line, `Unexpected character "${c}"\n`);
+        }
         break;
     }
+  }
+
+  private number(): void {
+    while (this.isDigit(this.peek())) this.advance();
+
+    // Look for a fractionl part.
+    if (this.peek() === "." && this.isDigit(this.peekNext())) {
+      // Consume the "."
+      this.advance();
+
+      while (this.isDigit(this.peek())) this.advance();
+    }
+
+    this.addToken(
+      TokenType.NUMBER,
+      Number(this.source.substring(this.start, this.current))
+    );
+  }
+
+  private string(): void {
+    while (this.peek() !== '"' && !this.isAtEnd()) {
+      if (this.peek() === "\n") this.line++;
+      this.advance();
+    }
+
+    if (this.isAtEnd()) {
+      Lox.error(this.line, "Unterminated string.");
+      return;
+    }
+
+    // The closing ".
+    this.advance();
+
+    // Trim the surrounding quotes.
+    const value = this.source.substring(this.start + 1, this.current - 1);
+    this.addToken(TokenType.STRING, value);
   }
 
   private match(expected: string): boolean {
@@ -107,6 +150,15 @@ class Scanner {
     return this.source.charAt(this.current);
   }
 
+  private peekNext(): string {
+    if (this.current + 1 >= this.source.length) return "\0";
+    return this.source.charAt(this.current + 1);
+  }
+
+  private isDigit(c: string): boolean {
+    return c >= "0" && c <= "9";
+  }
+
   private isAtEnd(): boolean {
     return this.current >= this.source.length;
   }
@@ -115,7 +167,7 @@ class Scanner {
     return this.source.charAt(this.current++);
   }
 
-  private addToken(type: TokenType, literal: Literal = null) {
+  private addToken(type: TokenType, literal?: Literal) {
     const text: string = this.source.substring(this.start, this.current);
     this.tokens.push(new Token(type, text, literal, this.line));
   }
