@@ -9,9 +9,28 @@ class Scanner {
   private start: number = 0;
   private current: number = 0;
   private line: number = 1;
+  private readonly keywords: Record<string, TokenType> = {
+    and: TokenType.AND,
+    class: TokenType.CLASS,
+    else: TokenType.ELSE,
+    false: TokenType.FALSE,
+    for: TokenType.FOR,
+    fun: TokenType.FUN,
+    if: TokenType.IF,
+    nil: TokenType.NIL,
+    or: TokenType.OR,
+    print: TokenType.PRINT,
+    return: TokenType.RETURN,
+    super: TokenType.SUPER,
+    this: TokenType.THIS,
+    true: TokenType.TRUE,
+    var: TokenType.VAR,
+    while: TokenType.WHILE,
+  };
 
   constructor(source: string) {
     this.source = source;
+    Object.freeze(this.keywords);
   }
 
   scanTokens(): Token[] {
@@ -95,11 +114,22 @@ class Scanner {
       default:
         if (this.isDigit(c)) {
           this.number();
+        } else if (this.isAlpha(c)) {
+          this.identifier();
         } else {
           Lox.error(this.line, `Unexpected character "${c}"\n`);
         }
         break;
     }
+  }
+
+  private identifier() {
+    while (this.isAlphaNumeric(this.peek())) this.advance();
+
+    const text: string = this.source.substring(this.start, this.current);
+    let type: TokenType = this.keywords[text];
+    if (typeof type === "undefined") type = TokenType.IDENTIFIER;
+    this.addToken(type);
   }
 
   private number(): void {
@@ -153,6 +183,14 @@ class Scanner {
   private peekNext(): string {
     if (this.current + 1 >= this.source.length) return "\0";
     return this.source.charAt(this.current + 1);
+  }
+
+  private isAlpha(c: string): boolean {
+    return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c === "_";
+  }
+
+  private isAlphaNumeric(c: string): boolean {
+    return this.isAlpha(c) || this.isDigit(c);
   }
 
   private isDigit(c: string): boolean {

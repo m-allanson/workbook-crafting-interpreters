@@ -6,7 +6,7 @@ Browse the original book and source code at https://github.com/munificent/crafti
 
 My notes and answers to the challenges for each chapter are in the `notes` directory.
 
-This branch implements Lox with Typescript / Deno. My previous attempt (on branch `master`) worked through a few chapters of a Java implementation.
+This branch implements Lox with Typescript / Deno. My previous attempt (on branch `java`) worked through a few chapters of a Java implementation.
 
 ## Requirements
 
