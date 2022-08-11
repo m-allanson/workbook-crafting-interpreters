@@ -3,7 +3,7 @@ import { Literal } from "./Types.ts";
 
 class Token {
   readonly type: TokenType;
-  readonly lexeme: String;
+  readonly lexeme: string;
   readonly literal: Literal;
   readonly line: number;
 
@@ -14,7 +14,7 @@ class Token {
     this.line = line;
   }
 
-  public toString(): string {
+  toString(): string {
     return `${this.type} ${this.lexeme} ${this.literal}`;
   }
 }

@@ -23,7 +23,7 @@ export class Binary extends Expr {
     this.right = right;
   }
 
-  public accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: Visitor<R>): R {
     return visitor.visitBinaryExpr(this)
   }
 }
@@ -36,20 +36,20 @@ export class Grouping extends Expr {
     this.expression = expression;
   }
 
-  public accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: Visitor<R>): R {
     return visitor.visitGroupingExpr(this)
   }
 }
 
 export class Literal extends Expr {
-  readonly value: Literal
+  readonly value: string | number
 
-  constructor(value: Literal){
+  constructor(value: string | number){
     super();
     this.value = value;
   }
 
-  public accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: Visitor<R>): R {
     return visitor.visitLiteralExpr(this)
   }
 }
@@ -64,7 +64,7 @@ export class Unary extends Expr {
     this.right = right;
   }
 
-  public accept<R>(visitor: Visitor<R>): R {
+  accept<R>(visitor: Visitor<R>): R {
     return visitor.visitUnaryExpr(this)
   }
 }

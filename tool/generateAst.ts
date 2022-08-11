@@ -1,7 +1,7 @@
 const types = [
   "Binary   - left: Expr, operator: Token, right: Expr",
   "Grouping - expression: Expr",
-  "Literal  - value: Literal",
+  "Literal  - value: string | number",
   "Unary    - operator: Token , right: Expr",
 ];
 
@@ -79,7 +79,7 @@ class GenerateAst {
     }
     content += `  }\n\n`;
 
-    content += `  public accept<R>(visitor: Visitor<R>): R {\n`;
+    content += `  accept<R>(visitor: Visitor<R>): R {\n`;
     content += `    return visitor.visit${className}${baseName}(this)\n`;
     content += `  }\n`;
 

@@ -6,7 +6,7 @@ import Scanner from "./Scanner.ts";
 class Lox {
   static hadError = false;
 
-  public static main(args: string[]): void {
+  static main(args: string[]): void {
     if (args.length > 1) {
       console.log("Usage: tlox [script]");
       Deno.exit(64);
@@ -27,7 +27,7 @@ class Lox {
   private static async runPrompt(): Promise<void> {
     for await (const line of readLines(Deno.stdin)) {
       print("> ");
-      if (line == null) break;
+      if (line === null) break;
       Lox.run(line);
       Lox.hadError = false;
     }
@@ -42,7 +42,7 @@ class Lox {
     }
   }
 
-  public static error(line: number, message: string): void {
+  static error(line: number, message: string): void {
     Lox.report(line, "", message);
   }
 
