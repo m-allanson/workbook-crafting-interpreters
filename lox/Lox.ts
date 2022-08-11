@@ -1,12 +1,7 @@
 import { readLines } from "https://deno.land/std@0.151.0/io/mod.ts";
+import { print, printErr } from "./util.ts";
 import Token from "./Token.ts";
 import Scanner from "./Scanner.ts";
-
-const print = (message: string) =>
-  Deno.stdout.writeSync(new TextEncoder().encode(message));
-
-const printErr = (message: string) =>
-  Deno.stderr.writeSync(new TextEncoder().encode(message));
 
 class Lox {
   static hadError = false;
