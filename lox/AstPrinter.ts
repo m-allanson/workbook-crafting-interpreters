@@ -37,11 +37,8 @@ class AstPrinter implements Visitor<string> {
 
   static main(args: string[]): void {
     const expression: Expr = new Binary(
-      new Unary(
-        new Token(TokenType.MINUS, "-", undefined, 1),
-        new Literal(123)
-      ),
-      new Token(TokenType.STAR, "*", undefined, 1),
+      new Unary(new Token(TokenType.MINUS, "-", null, 1), new Literal(123)),
+      new Token(TokenType.STAR, "*", null, 1),
       new Grouping(new Literal(45.67))
     );
 
@@ -49,4 +46,4 @@ class AstPrinter implements Visitor<string> {
   }
 }
 
-AstPrinter.main([""]);
+export default AstPrinter;

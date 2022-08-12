@@ -1,7 +1,12 @@
 import { readLines } from "https://deno.land/std@0.151.0/io/mod.ts";
+
+import { Expr } from "./Expr.ts";
 import { print, printErr } from "./util.ts";
-import Token from "./Token.ts";
+import Parser from "./Parser.ts";
 import Scanner from "./Scanner.ts";
+import Token from "./Token.ts";
+import TokenType from "./TokenType.ts";
+import AstPrinter from "./AstPrinter.ts";
 
 class Lox {
   static hadError = false;
@@ -37,18 +42,36 @@ class Lox {
     const scanner: Scanner = new Scanner(source);
     const tokens: Token[] = scanner.scanTokens();
 
-    for (const token of tokens) {
-      print(`${JSON.stringify(token, null, 2)}\n`);
-    }
-  }
+    const parser: Parser = new Parser(tokens);
+    const expression: Expr = parser.parse();
 
-  static error(line: number, message: string): void {
-    Lox.report(line, "", message);
+    if (this.hadError) return;
+
+    console.log(new AstPrinter().print(expression));
   }
 
   private static report(line: number, where: string, message: string) {
     printErr(`[line ${line}] Error ${where}: ${message}`);
     Lox.hadError = true;
+  }
+
+  static error(line: number, message: string): void;
+  static error(token: Token, message: string): void;
+  static error(source: number | Token, message: string): void {
+    // line error
+    if (typeof source === "number") {
+      const line = source;
+      Lox.report(line, "", message);
+      return;
+    }
+
+    // token error
+    const token = source;
+    if (token.type === TokenType.EOF) {
+      this.report(token.line, " at end", message);
+    } else {
+      this.report(token.line, ` at '${token.lexeme}'`, message);
+    }
   }
 }
 

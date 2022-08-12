@@ -1,4 +1,5 @@
 import Token from "./Token.ts";
+import { Literal as LiteralType } from "./Types.ts";
 
 export abstract class Expr {
   abstract accept<R>(visitor: Visitor<R>): R;
@@ -12,11 +13,11 @@ export interface Visitor<R> {
 }
 
 export class Binary extends Expr {
-  readonly left: Expr
-  readonly operator: Token
-  readonly right: Expr
+  readonly left: Expr;
+  readonly operator: Token;
+  readonly right: Expr;
 
-  constructor(left: Expr, operator: Token, right: Expr){
+  constructor(left: Expr, operator: Token, right: Expr) {
     super();
     this.left = left;
     this.operator = operator;
@@ -24,47 +25,47 @@ export class Binary extends Expr {
   }
 
   accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitBinaryExpr(this)
+    return visitor.visitBinaryExpr(this);
   }
 }
 
 export class Grouping extends Expr {
-  readonly expression: Expr
+  readonly expression: Expr;
 
-  constructor(expression: Expr){
+  constructor(expression: Expr) {
     super();
     this.expression = expression;
   }
 
   accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitGroupingExpr(this)
+    return visitor.visitGroupingExpr(this);
   }
 }
 
 export class Literal extends Expr {
-  readonly value: string | number
+  readonly value: LiteralType;
 
-  constructor(value: string | number){
+  constructor(value: LiteralType) {
     super();
     this.value = value;
   }
 
   accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitLiteralExpr(this)
+    return visitor.visitLiteralExpr(this);
   }
 }
 
 export class Unary extends Expr {
-  readonly operator: Token 
-  readonly right: Expr
+  readonly operator: Token;
+  readonly right: Expr;
 
-  constructor(operator: Token , right: Expr){
+  constructor(operator: Token, right: Expr) {
     super();
     this.operator = operator;
     this.right = right;
   }
 
   accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitUnaryExpr(this)
+    return visitor.visitUnaryExpr(this);
   }
 }
