@@ -19,32 +19,33 @@ Bonus: What kind of expression does this bit of grammar encode?
 Here's my attempt at this.
 
 ```
-expr -> root | IDENTIFIER | NUMBER
+expr  -> expr
+expr  -> expr fnArgsOrProp
+expr  -> IDENTIFIER
+expr  -> NUMBER
 
-root           -> expr
-root           -> expr listOrProp
+fnArgsOrProp -> fnArgs
+fnArgsOrProp -> property
+fnArgsOrProp -> fnArgs fnArgsOrProp
+fnArgsOrProp -> property fnArgsOrProp
 
-listOrProp     -> grouping
-listOrProp     -> property
-listOrProp     -> listOrProp
+fnArgs -> "(" ")"
+fnArgs -> "(" expr ")"
+fnArgs -> "(" expr commaExpr ")"
 
-grouping       -> "(" ")"
-grouping       -> "(" expr expressionlist  ")"
+commaExpr -> "," expr
+commaExpr -> "," expr commaExpr
 
-expressionlist -> null
-expressionlist -> "," expr
-expressionlist -> "," expr expressionlist
-
-property       -> "." IDENTIFIER
+property ->  "." IDENTIFIER
 ```
-
-Note that I've added `expressionlist -> null` to cover the _zero_ part of _zero or more_ that a `*` indicates.
 
 The following lines can be described by this grammar:
 
 ```
 expr(expr)
-expr(expr, expr, expr)
+expr(expr)(expr)
+expr(expr)(expr).IDENTIFIER
+expr(expr, expr, expr)(expr).IDENTIFIER
 expr(expr).IDENTIFIER
 expr.IDENTIFIER
 expr.IDENTIFIER.IDENTIFIER
@@ -52,7 +53,7 @@ IDENTIFIER
 NUMBER
 ```
 
-This looks like it describes object properties? I'm not certain that any of the above is correct! 
+I'm not sure what this is describing. Half looks like function parameters, and half looks like object properties. Maybe it's related to classes?
 
 ---
 
@@ -87,4 +88,4 @@ This feels a bit hacky but it works (tm). How it works:
 - `visitGroupingExpr` now passes an empty name `""` to parenthesize, as we don't want to show any string for groups.
 - the `for` loop in parenthesize has a check to skip spaces after our (now blank) grouping strings: `if (name != "") builder.append(" ");`
 
-That's it!  
+That's it!
