@@ -38,7 +38,7 @@ class Scanner {
       this.start = this.current;
       this.scanToken();
     }
-    this.tokens.push(new Token(TokenType.EOF, "", undefined, this.line));
+    this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
     return this.tokens;
   }
 
@@ -205,7 +205,7 @@ class Scanner {
     return this.source.charAt(this.current++);
   }
 
-  private addToken(type: TokenType, literal?: Literal) {
+  private addToken(type: TokenType, literal: Literal = null) {
     const text: string = this.source.substring(this.start, this.current);
     this.tokens.push(new Token(type, text, literal, this.line));
   }
