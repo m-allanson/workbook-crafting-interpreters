@@ -7,9 +7,13 @@ import Scanner from "./Scanner.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
 import AstPrinter from "./AstPrinter.ts";
+import RuntimeError from "./RuntimeError.ts";
+import Interpreter from "./Interpreter.ts";
 
 class Lox {
-  static hadError = false;
+  private static readonly interpreter: Interpreter = new Interpreter();
+  static hadError: boolean = false;
+  static hadRuntimeError: boolean = false;
 
   static main(args: string[]): void {
     if (args.length > 1) {
@@ -27,6 +31,7 @@ class Lox {
     Lox.run(text);
 
     if (Lox.hadError) Deno.exit(65);
+    if (Lox.hadRuntimeError) Deno.exit(70);
   }
 
   private static async runPrompt(): Promise<void> {
@@ -47,7 +52,7 @@ class Lox {
 
     if (this.hadError) return;
 
-    console.log(new AstPrinter().print(expression));
+    this.interpreter.interpret(expression);
   }
 
   private static report(line: number, where: string, message: string) {
@@ -72,6 +77,11 @@ class Lox {
     } else {
       this.report(token.line, ` at '${token.lexeme}'`, message);
     }
+  }
+
+  static runtimeError(error: RuntimeError): void {
+    printErr(`${error.message}\n[line ${error.token.line}]`);
+    this.hadRuntimeError = true;
   }
 }
 

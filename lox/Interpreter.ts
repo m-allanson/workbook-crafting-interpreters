@@ -1,8 +1,24 @@
 import { Grouping, Literal, Visitor, Expr, Unary, Binary } from "./Expr.ts";
-import TokenType from "./TokenType.ts";
 import { Literal as LiteralType } from "./Types.ts";
+import RuntimeError from "./RuntimeError.ts";
+import Token from "./Token.ts";
+import TokenType from "./TokenType.ts";
+import Lox from "./Lox.ts";
 
 class Interpreter implements Visitor<LiteralType> {
+  interpret(expression: Expr): void {
+    try {
+      const value: LiteralType = this.evaluate(expression);
+      console.log(this.stringify(value));
+    } catch (error: unknown) {
+      if (error instanceof RuntimeError) {
+        Lox.runtimeError(error);
+      } else {
+        throw error;
+      }
+    }
+  }
+
   visitLiteralExpr(expr: Literal): LiteralType {
     return expr.value;
   }
@@ -14,11 +30,33 @@ class Interpreter implements Visitor<LiteralType> {
       case TokenType.BANG:
         return !this.isTruthy(right);
       case TokenType.MINUS:
+        this.checkNumberOperand(expr.operator, right);
         return -Number(right);
     }
 
     // Unreachable.
     return null;
+  }
+
+  private checkNumberOperand(operator: Token, operand: LiteralType): void {
+    if (typeof operand === "number" && !Number.isNaN(operand)) return;
+    throw new RuntimeError(operator, "Operand must be a number.");
+  }
+
+  private checkNumberOperands(
+    operator: Token,
+    left: LiteralType,
+    right: LiteralType
+  ): void {
+    if (
+      typeof left === "number" &&
+      typeof right === "number" &&
+      !Number.isNaN(left)
+    ) {
+      return;
+    }
+
+    throw new RuntimeError(operator, "Operands must be numbers.");
   }
 
   private isTruthy(item: LiteralType): boolean {
@@ -37,6 +75,11 @@ class Interpreter implements Visitor<LiteralType> {
     return a === b;
   }
 
+  private stringify(value: LiteralType): string {
+    if (value === null) return "nil";
+    return JSON.stringify(value);
+  }
+
   visitGroupingExpr(expr: Grouping): LiteralType {
     return this.evaluate(expr.expression);
   }
@@ -51,20 +94,23 @@ class Interpreter implements Visitor<LiteralType> {
 
     switch (expr.operator.type) {
       case TokenType.GREATER:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) > Number(right);
       case TokenType.GREATER_EQUAL:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) >= Number(right);
       case TokenType.LESS:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) < Number(right);
       case TokenType.LESS_EQUAL:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) <= Number(right);
       case TokenType.MINUS:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) - Number(right);
       case TokenType.PLUS:
-        if (typeof left === "number" && left) {
-        }
         if (
-          // typeofs here allow TS to narrow the types correctly
+          // typeofs here allow TS to narrow the types to 'number'. isFinite() alone is not enough.
           typeof left === "number" &&
           typeof right === "number" &&
           Number.isFinite(left) &&
@@ -77,10 +123,15 @@ class Interpreter implements Visitor<LiteralType> {
           return `${left}${right}`;
         }
 
-        break;
+        throw new RuntimeError(
+          expr.operator,
+          "Operands must be two numbers or two strings."
+        );
       case TokenType.SLASH:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) / Number(right);
       case TokenType.STAR:
+        this.checkNumberOperands(expr.operator, left, right);
         return Number(left) * Number(right);
       case TokenType.BANG_EQUAL:
         return !this.isEqual(left, right);
@@ -92,3 +143,5 @@ class Interpreter implements Visitor<LiteralType> {
     return null;
   }
 }
+
+export default Interpreter;
