@@ -1,7 +1,8 @@
-import TokenType from "./TokenType.ts";
-import Token from "./Token.ts";
-import { Binary, Expr, Grouping, Literal, Unary } from "./Expr.ts";
+import * as Expr from "./Expr.ts";
+import * as Stmt from "./Stmt.ts";
 import Lox from "./Lox.ts";
+import Token from "./Token.ts";
+import TokenType from "./TokenType.ts";
 
 class Parser {
   private readonly tokens: Token[];
@@ -29,15 +30,15 @@ class Parser {
 
     while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
       const operator: Token = this.previous();
-      const right: Expr = this.comparison();
-      expr = new Binary(expr, operator, right);
+      const right: Expr.Expr = this.comparison();
+      expr = new Expr.Binary(expr, operator, right);
     }
 
     return expr;
   }
 
-  private comparison(): Expr {
-    let expr: Expr = this.term();
+  private comparison(): Expr.Expr {
+    let expr: Expr.Expr = this.term();
 
     while (
       this.match(
@@ -48,60 +49,60 @@ class Parser {
       )
     ) {
       const operator = this.previous();
-      const right: Expr = this.term();
-      expr = new Binary(expr, operator, right);
+      const right: Expr.Expr = this.term();
+      expr = new Expr.Binary(expr, operator, right);
     }
 
     return expr;
   }
 
-  private term(): Expr {
-    let expr: Expr = this.factor();
+  private term(): Expr.Expr {
+    let expr: Expr.Expr = this.factor();
 
     while (this.match(TokenType.MINUS, TokenType.PLUS)) {
       const operator: Token = this.previous();
-      const right: Expr = this.factor();
-      expr = new Binary(expr, operator, right);
+      const right: Expr.Expr = this.factor();
+      expr = new Expr.Binary(expr, operator, right);
     }
 
     return expr;
   }
 
-  private factor(): Expr {
+  private factor(): Expr.Expr {
     let expr = this.unary();
 
     while (this.match(TokenType.SLASH, TokenType.STAR)) {
       const operator: Token = this.previous();
-      const right: Expr = this.unary();
-      expr = new Binary(expr, operator, right);
+      const right: Expr.Expr = this.unary();
+      expr = new Expr.Binary(expr, operator, right);
     }
 
     return expr;
   }
 
-  private unary(): Expr {
+  private unary(): Expr.Expr {
     if (this.match(TokenType.BANG, TokenType.MINUS)) {
       const operator: Token = this.previous();
-      const right: Expr = this.unary();
-      return new Unary(operator, right);
+      const right: Expr.Expr = this.unary();
+      return new Expr.Unary(operator, right);
     }
 
     return this.primary();
   }
 
-  private primary(): Expr {
-    if (this.match(TokenType.FALSE)) return new Literal(false);
-    if (this.match(TokenType.TRUE)) return new Literal(true);
-    if (this.match(TokenType.NIL)) return new Literal(null);
+  private primary(): Expr.Expr {
+    if (this.match(TokenType.FALSE)) return new Expr.Literal(false);
+    if (this.match(TokenType.TRUE)) return new Expr.Literal(true);
+    if (this.match(TokenType.NIL)) return new Expr.Literal(null);
 
     if (this.match(TokenType.NUMBER, TokenType.STRING)) {
-      return new Literal(this.previous().literal);
+      return new Expr.Literal(this.previous().literal);
     }
 
     if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
-      return new Grouping(expr);
+      return new Expr.Grouping(expr);
     }
 
     throw this.error(this.peek(), "Expect expression.");

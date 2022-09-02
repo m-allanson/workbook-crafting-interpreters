@@ -1,5 +1,5 @@
 import Token from "./Token.ts";
-import { Literal as LiteralType } from "./Types.ts";
+import { Value } from "./Types.ts";
 
 export abstract class Expr {
   abstract accept<R>(visitor: Visitor<R>): R;
@@ -43,9 +43,9 @@ export class Grouping extends Expr {
 }
 
 export class Literal extends Expr {
-  readonly value: LiteralType;
+  readonly value: Value;
 
-  constructor(value: LiteralType) {
+  constructor(value: Value) {
     super();
     this.value = value;
   }

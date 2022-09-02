@@ -1,30 +1,31 @@
-import { Visitor, Expr, Grouping, Binary, Literal, Unary } from "./Expr.ts";
+import { print } from "./util.ts";
+import * as Expr from "./Expr.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
 
-class AstPrinter implements Visitor<string> {
-  print(expr: Expr) {
+class AstPrinter implements Expr.Visitor<string> {
+  print(expr: Expr.Expr) {
     return expr.accept(this);
   }
 
-  visitBinaryExpr(expr: Binary): string {
+  visitBinaryExpr(expr: Expr.Binary): string {
     return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
   }
 
-  visitGroupingExpr(expr: Grouping): string {
+  visitGroupingExpr(expr: Expr.Grouping): string {
     return this.parenthesize("group", expr.expression);
   }
 
-  visitLiteralExpr(expr: Literal): string {
+  visitLiteralExpr(expr: Expr.Literal): string {
     if (expr.value === null) return "nil";
     return expr.value.toString();
   }
 
-  visitUnaryExpr(expr: Unary): string {
+  visitUnaryExpr(expr: Expr.Unary): string {
     return this.parenthesize(expr.operator.lexeme, expr.right);
   }
 
-  parenthesize(name: string, ...exprs: Expr[]) {
+  parenthesize(name: string, ...exprs: Expr.Expr[]) {
     let builder = ``;
 
     builder += `(${name}`;
@@ -36,13 +37,16 @@ class AstPrinter implements Visitor<string> {
   }
 
   static main(args: string[]): void {
-    const expression: Expr = new Binary(
-      new Unary(new Token(TokenType.MINUS, "-", null, 1), new Literal(123)),
+    const expression: Expr.Expr = new Expr.Binary(
+      new Expr.Unary(
+        new Token(TokenType.MINUS, "-", null, 1),
+        new Expr.Literal(123)
+      ),
       new Token(TokenType.STAR, "*", null, 1),
-      new Grouping(new Literal(45.67))
+      new Expr.Grouping(new Expr.Literal(45.67))
     );
 
-    console.log(new AstPrinter().print(expression));
+    print(new AstPrinter().print(expression));
   }
 }
 

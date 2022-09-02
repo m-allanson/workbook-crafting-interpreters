@@ -1,9 +1,11 @@
-import { Grouping, Literal, Visitor, Expr, Unary, Binary } from "./Expr.ts";
-import { Literal as LiteralType } from "./Types.ts";
+import { Value } from "./Types.ts";
+import { print, printErr } from "./util.ts";
+import * as Expr from "./Expr.ts";
+import * as Stmt from "./Stmt.ts";
+import Lox from "./Lox.ts";
 import RuntimeError from "./RuntimeError.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
-import Lox from "./Lox.ts";
 
 class Interpreter implements Visitor<LiteralType> {
   interpret(expression: Expr): void {
@@ -19,12 +21,12 @@ class Interpreter implements Visitor<LiteralType> {
     }
   }
 
-  visitLiteralExpr(expr: Literal): LiteralType {
+  visitLiteralExpr(expr: Expr.Literal): Value {
     return expr.value;
   }
 
-  visitUnaryExpr(expr: Unary): LiteralType {
-    const right: LiteralType = this.evaluate(expr.right);
+  visitUnaryExpr(expr: Expr.Unary): Value {
+    const right: Value = this.evaluate(expr.right);
 
     switch (expr.operator.type) {
       case TokenType.BANG:
@@ -38,15 +40,15 @@ class Interpreter implements Visitor<LiteralType> {
     return null;
   }
 
-  private checkNumberOperand(operator: Token, operand: LiteralType): void {
+  private checkNumberOperand(operator: Token, operand: Value): void {
     if (typeof operand === "number" && !Number.isNaN(operand)) return;
     throw new RuntimeError(operator, "Operand must be a number.");
   }
 
   private checkNumberOperands(
     operator: Token,
-    left: LiteralType,
-    right: LiteralType
+    left: Value,
+    right: Value
   ): void {
     if (
       typeof left === "number" &&
@@ -59,13 +61,13 @@ class Interpreter implements Visitor<LiteralType> {
     throw new RuntimeError(operator, "Operands must be numbers.");
   }
 
-  private isTruthy(item: LiteralType): boolean {
+  private isTruthy(item: Value): boolean {
     if (item === null) return false;
     if (item === false) return false;
     return true;
   }
 
-  private isEqual(a: LiteralType, b: LiteralType): boolean {
+  private isEqual(a: Value, b: Value): boolean {
     if (a === null && b === null) return true;
     if (a === null) return false;
 
@@ -75,16 +77,16 @@ class Interpreter implements Visitor<LiteralType> {
     return a === b;
   }
 
-  private stringify(value: LiteralType): string {
+  private stringify(value: Value): string {
     if (value === null) return "nil";
     return JSON.stringify(value);
   }
 
-  visitGroupingExpr(expr: Grouping): LiteralType {
+  visitGroupingExpr(expr: Expr.Grouping): Value {
     return this.evaluate(expr.expression);
   }
 
-  private evaluate(expr: Expr): LiteralType {
+  private evaluate(expr: Expr.Expr): Value {
     return expr.accept(this);
   }
 

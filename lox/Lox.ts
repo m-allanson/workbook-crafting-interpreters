@@ -1,14 +1,14 @@
 import { readLines } from "https://deno.land/std@0.151.0/io/mod.ts";
 
-import { Expr } from "./Expr.ts";
+// import AstPrinter from "./AstPrinter.ts";
 import { print, printErr } from "./util.ts";
+import { Stmt } from "./Stmt.ts";
+import Interpreter from "./Interpreter.ts";
 import Parser from "./Parser.ts";
+import RuntimeError from "./RuntimeError.ts";
 import Scanner from "./Scanner.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
-import AstPrinter from "./AstPrinter.ts";
-import RuntimeError from "./RuntimeError.ts";
-import Interpreter from "./Interpreter.ts";
 
 class Lox {
   private static readonly interpreter: Interpreter = new Interpreter();
@@ -17,7 +17,7 @@ class Lox {
 
   static main(args: string[]): void {
     if (args.length > 1) {
-      console.log("Usage: tlox [script]");
+      print("Usage: tlox [script]");
       Deno.exit(64);
     } else if (args.length === 1) {
       Lox.runFile(args[0]);
