@@ -48,11 +48,11 @@ class Lox {
     const tokens: Token[] = scanner.scanTokens();
 
     const parser: Parser = new Parser(tokens);
-    const expression: Expr = parser.parse();
+    const statements: Stmt[] = parser.parse();
 
     if (this.hadError) return;
 
-    this.interpreter.interpret(expression);
+    this.interpreter.interpret(statements);
   }
 
   private static report(line: number, where: string, message: string) {

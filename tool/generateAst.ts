@@ -1,10 +1,3 @@
-const types = [
-  "Binary   - left: Expr, operator: Token, right: Expr",
-  "Grouping - expression: Expr",
-  "Literal  - value: string | number",
-  "Unary    - operator: Token , right: Expr",
-];
-
 class GenerateAst {
   static main(args: string[]) {
     if (args.length !== 1) {
@@ -15,16 +8,41 @@ class GenerateAst {
     }
     const outputDir: string = args[0];
 
-    this.defineAst(outputDir, "Expr", types);
+    this.defineAst(
+      outputDir,
+      "Expr",
+      [
+        "Binary   - left: Expr, operator: Token, right: Expr",
+        "Grouping - expression: Expr",
+        "Literal  - value: Value",
+        "Unary    - operator: Token, right: Expr",
+      ],
+      [
+        [`Token`, `./Token.ts`],
+        [`{ Value }`, `./Types.ts`],
+      ]
+    );
+
+    this.defineAst(
+      outputDir,
+      "Stmt",
+      ["Expression - expression: Expr", "Print - expression: Expr"],
+      [[`{ Expr }`, `./Expr.ts`]]
+    );
   }
 
   private static defineAst(
     outputDir: string,
     baseName: string,
-    types: string[]
+    types: string[],
+    imports: [identifiers: string, specifier: string][] = []
   ): void {
     const path: string = `${outputDir}/${baseName}.ts`;
-    let content = `import Token from "./Token.ts";\n\n`;
+    let content = "";
+    for (const [identifiers, specifier] of imports) {
+      content += `import ${identifiers} from "${specifier}";\n`;
+    }
+    content += "\n";
     content += `export abstract class ${baseName} {\n`;
     content += `  abstract accept<R>(visitor: Visitor<R>): R;\n`;
     content += `}\n\n`;
@@ -65,12 +83,12 @@ class GenerateAst {
 
     // Fields.
     for (const field of fields) {
-      content += `  readonly ${field}\n`;
+      content += `  readonly ${field};\n`;
     }
     content += `\n`;
 
     // Constructor.
-    content += `  constructor(${fieldList}){\n`;
+    content += `  constructor(${fieldList}) {\n`;
     content += `    super();\n`;
 
     for (const field of fields) {
@@ -80,7 +98,7 @@ class GenerateAst {
     content += `  }\n\n`;
 
     content += `  accept<R>(visitor: Visitor<R>): R {\n`;
-    content += `    return visitor.visit${className}${baseName}(this)\n`;
+    content += `    return visitor.visit${className}${baseName}(this);\n`;
     content += `  }\n`;
 
     content += `}\n`;

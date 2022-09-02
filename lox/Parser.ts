@@ -12,21 +12,39 @@ class Parser {
     this.tokens = tokens;
   }
 
-  parse(): Expr {
-    try {
-      return this.expression();
-    } catch (error: unknown) {
-      // @ts-expect-error sort this out later?
-      return null;
+  parse(): Stmt.Stmt[] {
+    let statements = [];
+    while (!this.isAtEnd()) {
+      statements.push(this.statement());
     }
+
+    return statements;
   }
 
-  private expression(): Expr {
+  private expression(): Expr.Expr {
     return this.equality();
   }
 
-  private equality(): Expr {
-    let expr: Expr = this.comparison();
+  private statement(): Stmt.Stmt {
+    if (this.match(TokenType.PRINT)) return this.printStatement();
+
+    return this.expressionStatement();
+  }
+
+  private printStatement(): Stmt.Stmt {
+    let value: Expr.Expr = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Print(value);
+  }
+
+  private expressionStatement(): Stmt.Stmt {
+    let expr: Expr.Expr = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new Stmt.Expression(expr);
+  }
+
+  private equality(): Expr.Expr {
+    let expr: Expr.Expr = this.comparison();
 
     while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
       const operator: Token = this.previous();

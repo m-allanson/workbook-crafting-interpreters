@@ -7,11 +7,12 @@ import RuntimeError from "./RuntimeError.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
 
-class Interpreter implements Visitor<LiteralType> {
-  interpret(expression: Expr): void {
+class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
+  interpret(statements: Stmt.Stmt[]): void {
     try {
-      const value: LiteralType = this.evaluate(expression);
-      console.log(this.stringify(value));
+      for (const statement of statements) {
+        this.execute(statement);
+      }
     } catch (error: unknown) {
       if (error instanceof RuntimeError) {
         Lox.runtimeError(error);
@@ -90,9 +91,22 @@ class Interpreter implements Visitor<LiteralType> {
     return expr.accept(this);
   }
 
-  visitBinaryExpr(expr: Binary): LiteralType {
-    const left: LiteralType = this.evaluate(expr.left);
-    const right: LiteralType = this.evaluate(expr.right);
+  private execute(stmt: Stmt.Stmt): void {
+    stmt.accept(this);
+  }
+
+  visitExpressionStmt(stmt: Stmt.Expression): void {
+    this.evaluate(stmt.expression);
+  }
+
+  visitPrintStmt(stmt: Stmt.Print): void {
+    const value: Value = this.evaluate(stmt.expression);
+    print(this.stringify(value));
+  }
+
+  visitBinaryExpr(expr: Expr.Binary): Value {
+    const left: Value = this.evaluate(expr.left);
+    const right: Value = this.evaluate(expr.right);
 
     switch (expr.operator.type) {
       case TokenType.GREATER:
