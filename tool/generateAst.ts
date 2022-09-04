@@ -16,6 +16,7 @@ class GenerateAst {
         "Grouping - expression: Expr",
         "Literal  - value: Value",
         "Unary    - operator: Token, right: Expr",
+        "Variable - name: Token",
       ],
       [
         [`Token`, `./Token.ts`],
@@ -26,8 +27,15 @@ class GenerateAst {
     this.defineAst(
       outputDir,
       "Stmt",
-      ["Expression - expression: Expr", "Print - expression: Expr"],
-      [[`{ Expr }`, `./Expr.ts`]]
+      [
+        "Print - expression: Expr",
+        "Expression - expression: Expr",
+        "Var - name: Token, initializer: Expr | null",
+      ],
+      [
+        [`Token`, `./Token.ts`],
+        [`{ Expr }`, `./Expr.ts`],
+      ]
     );
   }
 
