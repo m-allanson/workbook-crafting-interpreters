@@ -120,6 +120,12 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
     this.environment.define(stmt.name.lexeme, value);
   }
 
+  visitAssignExpr(expr: Expr.Assign): Value {
+    const value: Value = this.evaluate(expr.value);
+    this.environment.assign(expr.name, value);
+    return value;
+  }
+
   visitBinaryExpr(expr: Expr.Binary): Value {
     const left: Value = this.evaluate(expr.left);
     const right: Value = this.evaluate(expr.right);
