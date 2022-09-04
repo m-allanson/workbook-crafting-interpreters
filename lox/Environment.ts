@@ -3,7 +3,12 @@ import Token from "./Token.ts";
 import { Value } from "./Types.ts";
 
 class Environment {
+  readonly enclosing: Environment | null = null;
   private readonly values: Map<string, Value> = new Map();
+
+  constructor(enclosing?: Environment) {
+    if (enclosing) this.enclosing = enclosing;
+  }
 
   define(name: string, value: Value): void {
     this.values.set(name, value);
@@ -20,6 +25,8 @@ class Environment {
       return value;
     }
 
+    if (this.enclosing !== null) return this.enclosing.get(name);
+
     throw new RuntimeError(name, `Undefined variable "${name.lexeme}".`);
   }
 
@@ -28,6 +35,8 @@ class Environment {
       this.values.set(name.lexeme, value);
       return;
     }
+
+    if (this.enclosing !== null) return this.enclosing.assign(name, value);
 
     throw new RuntimeError(name, `Undefined variable "${name.lexeme}".`);
   }

@@ -102,6 +102,27 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
     stmt.accept(this);
   }
 
+  private executeBlock(
+    statements: Stmt.Stmt[],
+    environment: Environment
+  ): void {
+    const previous: Environment = this.environment;
+
+    try {
+      this.environment = environment;
+
+      for (const statement of statements) {
+        this.execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
+  }
+
+  visitBlockStmt(stmt: Stmt.Block): void {
+    this.executeBlock(stmt.statements, new Environment(this.environment));
+  }
+
   visitExpressionStmt(stmt: Stmt.Expression): void {
     this.evaluate(stmt.expression);
   }

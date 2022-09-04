@@ -6,21 +6,22 @@ export abstract class Stmt {
 }
 
 export interface Visitor<R> {
-  visitPrintStmt(stmt: Print): R;
+  visitBlockStmt(stmt: Block): R;
   visitExpressionStmt(stmt: Expression): R;
+  visitPrintStmt(stmt: Print): R;
   visitVarStmt(stmt: Var): R;
 }
 
-export class Print extends Stmt {
-  readonly expression: Expr;
+export class Block extends Stmt {
+  readonly statements: Stmt[];
 
-  constructor(expression: Expr) {
+  constructor(statements: Stmt[]) {
     super();
-    this.expression = expression;
+    this.statements = statements;
   }
 
   accept<R>(visitor: Visitor<R>): R {
-    return visitor.visitPrintStmt(this);
+    return visitor.visitBlockStmt(this);
   }
 }
 
@@ -34,6 +35,19 @@ export class Expression extends Stmt {
 
   accept<R>(visitor: Visitor<R>): R {
     return visitor.visitExpressionStmt(this);
+  }
+}
+
+export class Print extends Stmt {
+  readonly expression: Expr;
+
+  constructor(expression: Expr) {
+    super();
+    this.expression = expression;
+  }
+
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visitPrintStmt(this);
   }
 }
 

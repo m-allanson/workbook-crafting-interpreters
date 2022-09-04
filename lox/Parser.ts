@@ -43,6 +43,7 @@ class Parser {
 
   private statement(): Stmt.Stmt {
     if (this.match(TokenType.PRINT)) return this.printStatement();
+    if (this.match(TokenType.LEFT_BRACE)) return new Stmt.Block(this.block());
 
     return this.expressionStatement();
   }
@@ -72,6 +73,18 @@ class Parser {
     let expr: Expr.Expr = this.expression();
     this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
     return new Stmt.Expression(expr);
+  }
+
+  private block(): Stmt.Stmt[] {
+    const statements: Stmt.Stmt[] = [];
+
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      const decl = this.declaration();
+      if (decl !== null) statements.push(decl);
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, `Expect '}' after block.`);
+    return statements;
   }
 
   private assignment(): Expr.Expr {

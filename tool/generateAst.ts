@@ -29,8 +29,9 @@ class GenerateAst {
       outputDir,
       "Stmt",
       [
-        "Print - expression: Expr",
+        "Block - statements: Stmt[]",
         "Expression - expression: Expr",
+        "Print - expression: Expr",
         "Var - name: Token, initializer: Expr | null",
       ],
       [
