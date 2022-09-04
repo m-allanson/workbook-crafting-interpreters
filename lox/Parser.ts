@@ -17,7 +17,7 @@ class Parser {
 
     while (!this.isAtEnd()) {
       const declaration = this.declaration();
-      if (declaration) statements.push();
+      if (declaration) statements.push(declaration);
     }
 
     return statements;

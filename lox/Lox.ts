@@ -50,6 +50,8 @@ class Lox {
     const parser: Parser = new Parser(tokens);
     const statements: Stmt[] = parser.parse();
 
+    // console.log(Deno.inspect(statements, { depth: 100 }));
+
     if (this.hadError) return;
 
     this.interpreter.interpret(statements);

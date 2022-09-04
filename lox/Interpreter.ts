@@ -6,8 +6,11 @@ import Lox from "./Lox.ts";
 import RuntimeError from "./RuntimeError.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
+import Environment from "./Environment.ts";
 
 class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
+  private environment: Environment = new Environment();
+
   interpret(statements: Stmt.Stmt[]): void {
     try {
       for (const statement of statements) {
@@ -39,6 +42,10 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
 
     // Unreachable.
     return null;
+  }
+
+  visitVariableExpr(expr: Expr.Variable): Value {
+    return this.environment.get(expr.name);
   }
 
   private checkNumberOperand(operator: Token, operand: Value): void {
@@ -102,6 +109,15 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   visitPrintStmt(stmt: Stmt.Print): void {
     const value: Value = this.evaluate(stmt.expression);
     print(this.stringify(value));
+  }
+
+  visitVarStmt(stmt: Stmt.Var): void {
+    let value: Value = null;
+    if (stmt.initializer !== null) {
+      value = this.evaluate(stmt.initializer);
+    }
+
+    this.environment.define(stmt.name.lexeme, value);
   }
 
   visitBinaryExpr(expr: Expr.Binary): Value {
