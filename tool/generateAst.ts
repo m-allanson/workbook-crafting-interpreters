@@ -16,6 +16,7 @@ class GenerateAst {
         "Binary   - left: Expr, operator: Token, right: Expr",
         "Grouping - expression: Expr",
         "Literal  - value: Value",
+        "Logical  - left: Expr, operator: Token, right: Expr",
         "Unary    - operator: Token, right: Expr",
         "Variable - name: Token",
       ],
@@ -29,10 +30,11 @@ class GenerateAst {
       outputDir,
       "Stmt",
       [
-        "Block - statements: Stmt[]",
+        "Block      - statements: Stmt[]",
         "Expression - expression: Expr",
-        "Print - expression: Expr",
-        "Var - name: Token, initializer: Expr | null",
+        "If         - condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null",
+        "Print      - expression: Expr",
+        "Var        - name: Token, initializer: Expr | null",
       ],
       [
         [`Token`, `./Token.ts`],
