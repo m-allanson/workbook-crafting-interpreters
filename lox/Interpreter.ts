@@ -161,6 +161,12 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
     this.environment.define(stmt.name.lexeme, value);
   }
 
+  visitWhileStmt(stmt: Stmt.While): void {
+    while (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.body);
+    }
+  }
+
   visitAssignExpr(expr: Expr.Assign): Value {
     const value: Value = this.evaluate(expr.value);
     this.environment.assign(expr.name, value);
