@@ -29,6 +29,7 @@ class Parser {
 
   private declaration(): Stmt.Stmt | null {
     try {
+      if (this.match(T.FUN)) return this.function("function");
       if (this.match(T.VAR)) return this.varDeclaration();
       return this.statement();
     } catch (error: unknown) {
@@ -136,6 +137,26 @@ class Parser {
     let expr: Expr.Expr = this.expression();
     this.consume(T.SEMICOLON, "Expect ';' after expression.");
     return new Stmt.Expression(expr);
+  }
+
+  private function(kind: "function" | "method"): Stmt.Function {
+    const name: Token = this.consume(T.IDENTIFIER, `Expect ${kind} name.`);
+    this.consume(T.LEFT_PAREN, `Expect '(' after ${kind} name.`);
+
+    const parameters: Token[] = [];
+    if (!this.check(T.RIGHT_PAREN)) {
+      do {
+        if (parameters.length >= 255) {
+          this.error(this.peek(), "Can't have more than 255 parameters.");
+        }
+        parameters.push(this.consume(T.IDENTIFIER, "Expect parameter name."));
+      } while (this.match(T.COMMA));
+    }
+
+    this.consume(T.RIGHT_PAREN, "Expect ')' after parameters.");
+    this.consume(T.LEFT_BRACE, `Expect '{' before ${kind} body.`);
+    const body: Stmt.Stmt[] = this.block();
+    return new Stmt.Function(name, parameters, body);
   }
 
   private block(): Stmt.Stmt[] {
@@ -247,7 +268,41 @@ class Parser {
       return new Expr.Unary(operator, right);
     }
 
-    return this.primary();
+    return this.call();
+  }
+
+  private finishCall(callee: Expr.Expr): Expr.Expr {
+    const callArguments: Expr.Expr[] = [];
+
+    if (!this.check(T.RIGHT_PAREN)) {
+      do {
+        if (callArguments.length > 254) {
+          this.error(this.peek(), "Can't have more than 255 arguments.");
+        }
+        callArguments.push(this.expression());
+      } while (this.match(T.COMMA));
+    }
+
+    const paren: Token = this.consume(
+      T.RIGHT_PAREN,
+      `Expect ')' after arguments.`
+    );
+
+    return new Expr.Call(callee, paren, callArguments);
+  }
+
+  private call(): Expr.Expr {
+    let expr: Expr.Expr = this.primary();
+
+    while (true) {
+      if (this.match(T.LEFT_PAREN)) {
+        expr = this.finishCall(expr);
+      } else {
+        break;
+      }
+    }
+
+    return expr;
   }
 
   private primary(): Expr.Expr {

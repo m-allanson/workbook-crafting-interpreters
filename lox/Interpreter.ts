@@ -7,9 +7,33 @@ import RuntimeError from "./RuntimeError.ts";
 import Token from "./Token.ts";
 import T from "./TokenType.ts";
 import Environment from "./Environment.ts";
+import LoxCallable from "./LoxCallable.ts";
+import LoxFunction from "./LoxFunction.ts";
 
 class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
-  private environment: Environment = new Environment();
+  readonly globals: Environment = new Environment();
+  private environment: Environment = this.globals;
+
+  constructor() {
+    this.globals.define(
+      "clock",
+      new (class implements LoxCallable {
+        arity(): number {
+          return 0;
+        }
+
+        call(interpreter: Interpreter, callArguments: Value[]): Value {
+          return <number>(Date.now() / 1000);
+        }
+
+        readonly isLoxCallable: true = true;
+
+        toString(): string {
+          return "<native fn>";
+        }
+      })()
+    );
+  }
 
   interpret(statements: Stmt.Stmt[]): void {
     try {
@@ -114,10 +138,7 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
     stmt.accept(this);
   }
 
-  private executeBlock(
-    statements: Stmt.Stmt[],
-    environment: Environment
-  ): void {
+  executeBlock(statements: Stmt.Stmt[], environment: Environment): void {
     const previous: Environment = this.environment;
 
     try {
@@ -137,6 +158,11 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
 
   visitExpressionStmt(stmt: Stmt.Expression): void {
     this.evaluate(stmt.expression);
+  }
+
+  visitFunctionStmt(stmt: Stmt.Function): void {
+    const func: LoxFunction = new LoxFunction(stmt);
+    this.environment.define(stmt.name.lexeme, func);
   }
 
   visitIfStmt(stmt: Stmt.If): void {
@@ -226,6 +252,37 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
 
     // Unreachable.
     return null;
+  }
+
+  visitCallExpr(expr: Expr.Call): Value {
+    const callee: Value = this.evaluate(expr.callee);
+
+    const callArguments: Value[] = [];
+    for (const callArgument of expr.callArguments) {
+      callArguments.push(this.evaluate(callArgument));
+    }
+
+    // TODO: revisit these type-narrowing error checks and the Value type in general?
+    if (!callee) {
+      throw new RuntimeError(expr.paren, "Cannot call missing callee.");
+    }
+    if (typeof callee !== "object" || !("isLoxCallable" in callee)) {
+      throw new RuntimeError(
+        expr.paren,
+        "Can only call functions and classes."
+      );
+    }
+
+    const func: LoxCallable = <LoxCallable>callee;
+
+    if (callArguments.length !== func.arity()) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${func.arity()} arguments but got ${callArguments.length}.`
+      );
+    }
+
+    return func.call(this, callArguments);
   }
 }
 

@@ -1,13 +1,20 @@
-// While and For loops
-var a = 0;
-var temp;
-
-for (var b = 1; a < 10000; b = temp + b) {
-  print a;
-  print " ";
-  temp = a;
-  a = b;
+// Functions 10.4.1 (no returns)
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!"; 
 }
+
+sayHi("dear", "reader");
+
+// // While and For loops
+// var a = 0;
+// var temp;
+
+// for (var b = 1; a < 10000; b = temp + b) {
+//   print a;
+//   print " ";
+//   temp = a;
+//   a = b;
+// }
 
 // // Control flow
 // print "hi" or 2;

@@ -14,6 +14,7 @@ class GenerateAst {
       [
         "Assign   - name: Token, value: Expr",
         "Binary   - left: Expr, operator: Token, right: Expr",
+        "Call     - callee: Expr, paren: Token, callArguments: Expr[]",
         "Grouping - expression: Expr",
         "Literal  - value: Value",
         "Logical  - left: Expr, operator: Token, right: Expr",
@@ -32,6 +33,7 @@ class GenerateAst {
       [
         "Block      - statements: Stmt[]",
         "Expression - expression: Expr",
+        "Function   - name: Token, params: Token[], body: Stmt[]",
         "If         - condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null",
         "Print      - expression: Expr",
         "Var        - name: Token, initializer: Expr | null",
