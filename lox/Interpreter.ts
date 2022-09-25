@@ -5,7 +5,7 @@ import * as Stmt from "./Stmt.ts";
 import Lox from "./Lox.ts";
 import RuntimeError from "./RuntimeError.ts";
 import Token from "./Token.ts";
-import TokenType from "./TokenType.ts";
+import T from "./TokenType.ts";
 import Environment from "./Environment.ts";
 
 class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
@@ -32,7 +32,7 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   visitLogicalExpr(expr: Expr.Logical): Value {
     const left: Value = this.evaluate(expr.left);
 
-    if (expr.operator.type === TokenType.OR) {
+    if (expr.operator.type === T.OR) {
       if (this.isTruthy(left)) return left;
     } else {
       if (!this.isTruthy(left)) return left;
@@ -45,9 +45,9 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
     const right: Value = this.evaluate(expr.right);
 
     switch (expr.operator.type) {
-      case TokenType.BANG:
+      case T.BANG:
         return !this.isTruthy(right);
-      case TokenType.MINUS:
+      case T.MINUS:
         this.checkNumberOperand(expr.operator, right);
         return -Number(right);
     }
@@ -178,22 +178,22 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
     const right: Value = this.evaluate(expr.right);
 
     switch (expr.operator.type) {
-      case TokenType.GREATER:
+      case T.GREATER:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) > Number(right);
-      case TokenType.GREATER_EQUAL:
+      case T.GREATER_EQUAL:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) >= Number(right);
-      case TokenType.LESS:
+      case T.LESS:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) < Number(right);
-      case TokenType.LESS_EQUAL:
+      case T.LESS_EQUAL:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) <= Number(right);
-      case TokenType.MINUS:
+      case T.MINUS:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) - Number(right);
-      case TokenType.PLUS:
+      case T.PLUS:
         if (
           // typeofs here allow TS to narrow the types to 'number'. isFinite() alone is not enough.
           typeof left === "number" &&
@@ -212,15 +212,15 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
           expr.operator,
           "Operands must be two numbers or two strings."
         );
-      case TokenType.SLASH:
+      case T.SLASH:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) / Number(right);
-      case TokenType.STAR:
+      case T.STAR:
         this.checkNumberOperands(expr.operator, left, right);
         return Number(left) * Number(right);
-      case TokenType.BANG_EQUAL:
+      case T.BANG_EQUAL:
         return !this.isEqual(left, right);
-      case TokenType.EQUAL_EQUAL:
+      case T.EQUAL_EQUAL:
         return this.isEqual(left, right);
     }
 
