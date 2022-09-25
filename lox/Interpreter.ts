@@ -99,7 +99,7 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
 
   private stringify(value: Value): string {
     if (value === null) return "nil";
-    return JSON.stringify(value);
+    return value.toString();
   }
 
   visitGroupingExpr(expr: Expr.Grouping): Value {
