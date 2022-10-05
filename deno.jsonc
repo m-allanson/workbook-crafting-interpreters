@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "compile": "deno compile --allow-read --output dist/lox main.ts",
+    "gen-ast": "deno run --allow-write tool/generateAst.ts lox",
+    "lox": "deno run --allow-read main.ts",
+    "repl": "deno run main.ts"
+  }
+}

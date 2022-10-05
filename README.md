@@ -14,8 +14,10 @@ This branch implements Lox with Typescript / Deno. My previous attempt (on branc
 
 ## Getting started
 
-- Run REPL: `deno run main.ts`
-- Run file: `deno run --allow-read main.ts [path to file]`
+- Run REPL: `deno task repl`
+- Run file: `deno task lox [path to file]`
+
+Examine `tasks` in `./deno.json.`, or run `deno task` to discover all available commands.
 
 ### Tools
 
@@ -24,17 +26,15 @@ There's a script in the tools dir which generates the repetitive code in `lox/Ex
 Run it with:
 
 ```
-deno run --allow-write tool/generateAst.ts lox
+deno task gen-ast
 ```
-
-Add the `--watch` flag (after `--allow-write`) to re-run on file changes.
 
 ### Create a binary
 
 You can create a lox binary with:
 
 ```
-deno compile --allow-read --output dist/lox main.ts
+deno task compile
 ```
 
 Then run `dist/lox`.
