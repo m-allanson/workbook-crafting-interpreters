@@ -1,6 +1,7 @@
 import Environment from "./Environment.ts";
 import Interpreter from "./Interpreter.ts";
 import LoxCallable from "./LoxCallable.ts";
+import Return from "./Return.ts";
 import * as Stmt from "./Stmt.ts";
 import { Value } from "./Types.ts";
 
@@ -27,7 +28,15 @@ export default class LoxFunction implements LoxCallable {
       environment.define(this.declaration.params[i].lexeme, callArguments[i]);
     }
 
-    interpreter.executeBlock(this.declaration.body, environment);
+    try {
+      interpreter.executeBlock(this.declaration.body, environment);
+    } catch (errorOrReturn) {
+      if (errorOrReturn instanceof Return) {
+        return errorOrReturn.value;
+      } else {
+        throw errorOrReturn;
+      }
+    }
     return null;
   }
 }

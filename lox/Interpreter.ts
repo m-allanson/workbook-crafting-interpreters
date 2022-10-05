@@ -9,6 +9,7 @@ import T from "./TokenType.ts";
 import Environment from "./Environment.ts";
 import LoxCallable from "./LoxCallable.ts";
 import LoxFunction from "./LoxFunction.ts";
+import Return from "./Return.ts";
 
 class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   readonly globals: Environment = new Environment();
@@ -176,6 +177,13 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   visitPrintStmt(stmt: Stmt.Print): void {
     const value: Value = this.evaluate(stmt.expression);
     print(this.stringify(value));
+  }
+
+  visitReturnStmt(stmt: Stmt.Return): void {
+    let value: Value = null;
+    if (stmt.value !== null) value = this.evaluate(stmt.value);
+
+    throw new Return(value);
   }
 
   visitVarStmt(stmt: Stmt.Var): void {
