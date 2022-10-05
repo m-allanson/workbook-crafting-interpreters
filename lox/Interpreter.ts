@@ -162,7 +162,7 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   }
 
   visitFunctionStmt(stmt: Stmt.Function): void {
-    const func: LoxFunction = new LoxFunction(stmt);
+    const func: LoxFunction = new LoxFunction(stmt, this.environment);
     this.environment.define(stmt.name.lexeme, func);
   }
 

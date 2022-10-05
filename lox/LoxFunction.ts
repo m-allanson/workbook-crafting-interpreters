@@ -7,9 +7,11 @@ import { Value } from "./Types.ts";
 
 export default class LoxFunction implements LoxCallable {
   private readonly declaration: Stmt.Function;
+  private readonly closure: Environment;
   readonly isLoxCallable: true = true;
 
-  constructor(declaration: Stmt.Function) {
+  constructor(declaration: Stmt.Function, closure: Environment) {
+    this.closure = closure;
     this.declaration = declaration;
   }
 
@@ -22,7 +24,7 @@ export default class LoxFunction implements LoxCallable {
   }
 
   call(interpreter: Interpreter, callArguments: Value[]): Value {
-    const environment: Environment = new Environment(interpreter.globals);
+    const environment: Environment = new Environment(this.closure);
 
     for (let i = 0; i < this.declaration.params.length; i++) {
       environment.define(this.declaration.params[i].lexeme, callArguments[i]);
