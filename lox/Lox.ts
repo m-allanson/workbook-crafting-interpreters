@@ -82,7 +82,8 @@ class Lox {
   }
 
   static runtimeError(error: RuntimeError): void {
-    printErr(`${error.message}\n[line ${error.token.line}]`);
+    const line = error?.token?.line ?? "unknown";
+    printErr(`${error.message}\n[line ${line}]`);
     this.hadRuntimeError = true;
   }
 }
