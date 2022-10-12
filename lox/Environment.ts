@@ -14,6 +14,33 @@ class Environment {
     this.values.set(name, value);
   }
 
+  ancestor(distance: number): Environment {
+    let environment: Environment = this;
+    for (let i = 0; i < distance; i++) {
+      if (environment.enclosing) {
+        environment = environment.enclosing;
+      }
+    }
+    return environment;
+  }
+
+  getAt(distance: number, name: string): Value {
+    const value = this.ancestor(distance).values.get(name);
+
+    if (typeof value === "undefined") {
+      throw new RuntimeError(
+        null,
+        `Could not find value in environment for variable ${name}.`
+      );
+    }
+
+    return value;
+  }
+
+  assignAt(distance: number, name: Token, value: Value): void {
+    this.ancestor(distance).values.set(name.lexeme, value);
+  }
+
   get(name: Token): Value {
     if (this.values.has(name.lexeme)) {
       const value = this.values.get(name.lexeme);

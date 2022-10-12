@@ -9,6 +9,7 @@ import RuntimeError from "./RuntimeError.ts";
 import Scanner from "./Scanner.ts";
 import Token from "./Token.ts";
 import TokenType from "./TokenType.ts";
+import Resolver from "./Resolver.ts";
 
 class Lox {
   private static readonly interpreter: Interpreter = new Interpreter();
@@ -51,6 +52,11 @@ class Lox {
     const statements: Stmt[] = parser.parse();
 
     // console.log(Deno.inspect(statements, { depth: 100 }));
+
+    if (this.hadError) return;
+
+    const resolver: Resolver = new Resolver(this.interpreter);
+    resolver.resolveStmts(statements);
 
     if (this.hadError) return;
 

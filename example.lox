@@ -1,3 +1,5 @@
+// Local functions and closures. 
+// Broken example at end of Chapter 10. Fixed at end of Chapter 11.
 fun makeCounter() {
   var i = 0;
   fun count() {

@@ -6,15 +6,21 @@ import Token from "./Token.ts";
 
 type Scope = Map<string, boolean>;
 
+enum FunctionType {
+  NONE,
+  FUNCTION,
+}
+
 class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
   readonly #interpreter: Interpreter;
   readonly #scopes: Scope[] = [];
+  #currentFunction: FunctionType = FunctionType.NONE;
 
   constructor(interpreter: Interpreter) {
     this.#interpreter = interpreter;
   }
 
-  #resolveStmts(statements: Stmt.Stmt[]): void {
+  resolveStmts(statements: Stmt.Stmt[]): void {
     for (const statement of statements) {
       this.#resolveStmt(statement);
     }
@@ -28,14 +34,19 @@ class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
     expression.accept(this);
   }
 
-  #resolveFunction(func: Stmt.Function) {
+  #resolveFunction(func: Stmt.Function, type: FunctionType) {
+    const enclosingFunction: FunctionType = this.#currentFunction;
+    this.#currentFunction = type;
+
     this.#beginScope();
     for (const param of func.params) {
       this.#declare(param);
       this.#define(param);
     }
-    this.#resolveStmts(func.body);
+    this.resolveStmts(func.body);
     this.#endScope();
+
+    this.#currentFunction = enclosingFunction;
   }
 
   #beginScope(): void {
@@ -54,6 +65,11 @@ class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
   #declare(name: Token): void {
     if (this.#scopes.length < 1) return;
     const scope: Scope = this.#peekScope();
+
+    if (scope.has(name.lexeme)) {
+      Lox.error(name, "Already a variable with this name in the scope.");
+    }
+
     scope.set(name.lexeme, false);
   }
 
@@ -73,7 +89,7 @@ class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
 
   visitBlockStmt(stmt: Stmt.Block): void {
     this.#beginScope();
-    this.#resolveStmts(stmt.statements);
+    this.resolveStmts(stmt.statements);
     this.#endScope();
   }
 
@@ -105,7 +121,7 @@ class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
     this.#declare(stmt.name);
     this.#define(stmt.name);
 
-    this.#resolveFunction(stmt);
+    this.#resolveFunction(stmt, FunctionType.FUNCTION);
   }
 
   visitExpressionStmt(stmt: Stmt.Expression): void {
@@ -123,6 +139,10 @@ class Resolver implements Expr.Visitor<void>, Stmt.Visitor<void> {
   }
 
   visitReturnStmt(stmt: Stmt.Return): void {
+    if (this.#currentFunction === FunctionType.NONE) {
+      Lox.error(stmt.keyword, "Can't return from top-level code.");
+    }
+
     if (stmt.value !== null) {
       this.#resolveExpr(stmt.value);
     }

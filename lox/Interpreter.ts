@@ -14,6 +14,7 @@ import Return from "./Return.ts";
 class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   readonly globals: Environment = new Environment();
   private environment: Environment = this.globals;
+  private readonly locals = new Map<Expr.Expr, number>();
 
   constructor() {
     this.globals.define(
@@ -82,7 +83,16 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
   }
 
   visitVariableExpr(expr: Expr.Variable): Value {
-    return this.environment.get(expr.name);
+    return this.lookupVariable(expr.name, expr);
+  }
+
+  private lookupVariable(name: Token, expr: Expr.Expr) {
+    const distance: number | undefined = this.locals.get(expr);
+    if (typeof distance !== "undefined") {
+      return this.environment.getAt(distance, name.lexeme);
+    } else {
+      return this.globals.get(name);
+    }
   }
 
   private checkNumberOperand(operator: Token, operand: Value): void {
@@ -137,6 +147,10 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
 
   private execute(stmt: Stmt.Stmt): void {
     stmt.accept(this);
+  }
+
+  resolve(expr: Expr.Expr, depth: number) {
+    this.locals.set(expr, depth);
   }
 
   executeBlock(statements: Stmt.Stmt[], environment: Environment): void {
@@ -203,7 +217,14 @@ class Interpreter implements Expr.Visitor<Value>, Stmt.Visitor<void> {
 
   visitAssignExpr(expr: Expr.Assign): Value {
     const value: Value = this.evaluate(expr.value);
-    this.environment.assign(expr.name, value);
+
+    const distance: number | undefined = this.locals.get(expr);
+    if (typeof distance !== "undefined") {
+      this.environment.assignAt(distance, expr.name, value);
+    } else {
+      this.globals.assign(expr.name, value);
+    }
+
     return value;
   }
 
